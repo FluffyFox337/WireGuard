@@ -1,12 +1,11 @@
-@echo off
+@echo off &cls
 
 set "/dp=%~dp0"
 set "name_cfg_wgcf-profile=wgcf-profile.conf"
 
-
+:: ====================================================================================
 :menu
 call :reset_vars
-
 cls
 echo ===========================================
 echo            choice reading mode
@@ -14,52 +13,44 @@ echo ===========================================
 echo [1] basic conf
 echo [2] modifed conf
 echo -------------------------------------------
-echo [3] exit.
+echo [3] Exit.
+ 
 choice /c 123 /n
- if errorlevel 3 goto exit
- if errorlevel 2 goto m
- if errorlevel 1 goto b
+if errorlevel 3 goto exit
+if errorlevel 2 goto m
+if errorlevel 1 goto b
 
 
 :b
+cls
 call :read_conf
 call :echo_conf
 pause
 goto menu
 
 :m
+cls
 call :read_conf_m
 call :echo_conf_m
 pause
 goto menu
 
-
-
-
+:: ====================================================================================
 
 :read_conf
-SetLocal EnableDelayedExpansion
+    For /f "UseBackQ Tokens=1* Delims=:" %%A IN (`findstr /N /R /C:"." %/dp%%name_cfg_wgcf-profile%`) Do set "@@%%A=%%B"
+    set All="[Interface]=%@@1%" "PrivateKey=%@@2%" "Address=%@@3%" "Address2=%@@4%" "DNS=%@@5%" "MTU=%@@6%" "[Peer]=%@@7%" "PublicKey=%@@8%" "AllowedIPs=%@@9%" "AllowedIPs2=%@@10%" "Endpoint=%@@11%"
+    For %%i In (%All%) Do set %%i
+ 
+exit /B
+ 
+:read_conf_m
+    For /f "UseBackQ Tokens=1* Delims=:" %%A IN (`findstr /N /R /C:"." %/dp%%name_cfg_wgcf-profile%`) Do set "@@%%A=%%B"
+    set All="[Interface]=%@@1%" "PrivateKey=%@@2%" "wgListenPort=%@@3%" "Address=%@@4%" "Address2=%@@5%" "DNS=%@@6%" "MTU=%@@7%" "[Peer]=%@@8%" "PublicKey=%@@9%" "AllowedIPs=%@@10%" "AllowedIPs2=%@@11%" "Endpoint=%@@12%"
+    For %%i In (%All%) Do set %%i
+exit /B
 
-set /a c=0
-for /f "UseBackQ Delims=" %%A IN ("%/dp%%name_cfg_wgcf-profile%") do (
-  set /a c+=1
-  if !c!==1 set "[Interface]=%%A"
-  if !c!==2 set "PrivateKey=%%A"
-  if !c!==3 set "Address=%%A"
-  if !c!==4 set "Address2=%%A"
-  if !c!==5 set "DNS=%%A"
-  if !c!==6 set "MTU=%%A"
-  if !c!==7 set "[Peer]=%%A"
-  if !c!==8 set "PublicKey=%%A"
-  if !c!==9 set "AllowedIPs=%%A"
-  if !c!==10 set "AllowedIPs2=%%A"
-  if !c!==11 set "Endpoint=%%A"
-)
-
-SetLocal DisableDelayedExpansion
-
-exit /b
-
+:: ====================================================================================
 
 :echo_conf
 cls
@@ -80,31 +71,6 @@ echo 11 :%Endpoint%
 echo 12 :
 echo -----------------------------------------------------------
 echo cfg path: %/dp%%name_cfg_wgcf-profile%
-
-exit /b
-
-
-:read_conf_m
-SetLocal EnableDelayedExpansion
-
-set /a c=0
-for /f "UseBackQ Delims=" %%A IN ("%/dp%%name_cfg_wgcf-profile%") do (
-  set /a c+=1
-  if !c!==1 set "[Interface]=%%A"
-  if !c!==2 set "PrivateKey=%%A"
-  if !c!==3 set "wgListenPort=%%A"
-  if !c!==4 set "Address=%%A"
-  if !c!==5 set "Address2=%%A"
-  if !c!==6 set "DNS=%%A"
-  if !c!==7 set "MTU=%%A"
-  if !c!==8 set "[Peer]=%%A"
-  if !c!==9 set "PublicKey=%%A"
-  if !c!==10 set "AllowedIPs=%%A"
-  if !c!==11 set "AllowedIPs2=%%A"
-  if !c!==12 set "Endpoint=%%A"
-)
-
-SetLocal DisableDelayedExpansion
 
 exit /b
 
@@ -129,19 +95,8 @@ echo -----------------------------------------------------------
 echo cfg path: %/dp%%name_cfg_wgcf-profile%
 
 exit /b
+:: ====================================================================================
 
 :reset_vars
-set "[Interface]="
-set "PrivateKey="
-set "wgListenPort="
-set "Address="
-set "Address2="
-set "DNS="
-set "MTU="
-set "[Peer]="
-set "PublicKey="
-set "AllowedIPs="
-set "AllowedIPs2="
-set "Endpoint="
-
+set all="[Interface]=" "PrivateKey=" "wgListenPort=" "Address=" "Address2=" "DNS=" "MTU=" "[Peer]=" "PublicKey=" "AllowedIPs=" "AllowedIPs2=" "Endpoint="
 exit /b
